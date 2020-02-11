@@ -1,20 +1,21 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
-import { Button, Text, View, FlatList, TextInput } from 'react-native';
-import { Badge, Icon, Text as NText } from 'native-base';
-import CardProduct from '../Public/components/CardProduct';
+import { Text, View, FlatList } from 'react-native';
+import Icon from 'react-native-ionicons';
 
-import { useInputText } from '../Public/helper';
-import { getProducts } from './action';
+import CardProduct from '../../Public/components/CardProduct';
+import NavigationHome from '../../Public/components/NavigationHome';
+import ModalDetailItem from '../../Public/components/ModalDetailItem';
+
+import { useInputText } from '../../Public/helper';
+import { getProducts } from '../../Public/redux/actions/products';
 import {
   actionAddItemToCart,
   actionRemoveItemFromCart,
   actionAddQuantityItem,
   actionReduceQuantityItem
-} from './Order/action';
-
-import { useHeaderHeight } from 'react-navigation-stack';
+} from '../../Public/redux/actions/orders';
 
 const Home = props => {
   const {
@@ -30,6 +31,12 @@ const Home = props => {
     orders
   } = props;
 
+  const [limit, setLimit] = useState(4);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [itemData, setItemData] = useState({});
+
+  const countProducts = products.data.length;
+
   const filterName = navigation.getParam('filterName');
 
   const config = {
@@ -39,7 +46,8 @@ const Home = props => {
     params: {
       filter: {
         name: filterName
-      }
+      },
+      limit: limit
     }
   };
 
@@ -51,8 +59,6 @@ const Home = props => {
     requestLogout();
     navigation.navigate('Auth');
   };
-
-  console.log(useHeaderHeight());
 
   useEffect(() => {
     navigation.setParams({
@@ -76,9 +82,23 @@ const Home = props => {
     reduceQuantityItem
   ]);
 
+  useEffect(() => {
+    setLimit(limit + 4);
+  }, [countProducts]);
+
+  const _handleLoadMore = () => {
+    setDataProducts();
+  };
+
+  const openModal = data => {
+    setModalVisible(true);
+    setItemData(data);
+  };
+
   return (
-    <View style={{ paddingHorizontal: 5 }}>
+    <View>
       <FlatList
+        style={{ paddingHorizontal: 5 }}
         numColumns="2"
         keyExtractor={(item, index) => index.toString()}
         data={products.data}
@@ -98,68 +118,26 @@ const Home = props => {
             onReduceQuantity={() => {
               reduceQuantityItem(item);
             }}
+            onSelectItem={() => {
+              openModal(item);
+            }}
           />
         )}
+        onEndReached={_handleLoadMore}
+        onEndReachedThreshold={0.5}
+        initialNumToRender={4}
+      />
+      <ModalDetailItem
+        modalVisible={modalVisible}
+        handleClose={() => setModalVisible(false)}
+        data={itemData}
       />
     </View>
   );
 };
 
-const OrderNavigation = screenProps => {
-  const {
-    value: filterName,
-    bindText: bindFilterName,
-    reset: resetFilterName,
-    setValue: setFilterName
-  } = useInputText('');
-
-  useEffect(() => {
-    screenProps.navigation.setParams({
-      filterName: filterName
-    });
-  }, [filterName]);
-
-  return (
-    <Fragment>
-      <View
-        style={{
-          borderWidth: 1,
-          height: 51,
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'stretch'
-        }}>
-        <View style={{ borderWidth: 1, flex: 0.15 }}>
-          <Text style={{ borderWidth: 1 }}>User</Text>
-        </View>
-        <View style={{ borderWidth: 1, flex: 0.7 }}>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderRadius: 5,
-              margin: 5,
-              paddingHorizontal: 10
-            }}
-            {...bindFilterName}
-          />
-        </View>
-        <View style={{ borderWidth: 1, flex: 0.15 }}>
-          {screenProps.navigation.getParam('orderCount') > 0 ? (
-            <Badge info>
-              <NText>{screenProps.navigation.getParam('orderCount')}</NText>
-            </Badge>
-          ) : null}
-          <Text style={{ borderWidth: 1 }}>
-            {screenProps.navigation.getParam('orderCount')}
-          </Text>
-        </View>
-      </View>
-    </Fragment>
-  );
-};
-
 Home.navigationOptions = screenProps => ({
-  header: () => <OrderNavigation {...screenProps} />
+  header: () => <NavigationHome {...screenProps} />
 });
 
 const mapStateToProps = state => {

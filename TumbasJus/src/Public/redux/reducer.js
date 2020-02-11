@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
-import { auth } from '../../Auth/reducer';
-import { products } from '../../Home/reducer';
-import { orders } from '../../Home/Order/reducer';
+import { auth } from './reducers/auth';
+import { products } from './reducers/products';
+import { orders } from './reducers/orders';
 
 export default combineReducers({
   auth,

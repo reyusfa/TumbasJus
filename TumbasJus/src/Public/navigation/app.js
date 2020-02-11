@@ -1,6 +1,42 @@
 import { createStackNavigator } from 'react-navigation-stack';
-import Home from '../../Home';
+import { createDrawerNavigator } from 'react-navigation-drawer';
+import Home from '../../App/Home';
+import Order from '../../App/Order';
+import Profile from '../../App/Profile';
+import SideMenu from '../components/SideMenu';
 
-export default createStackNavigator({
-  Home
+const HomeScreen = createStackNavigator({
+  Home: {
+    screen: Home
+  }
 });
+
+const OrderScreen = createStackNavigator({
+  Order: {
+    screen: Order
+  }
+});
+
+const ProfileScreen = createStackNavigator({
+  Profile: {
+    screen: Profile
+  }
+});
+
+export default createDrawerNavigator(
+  {
+    Home: {
+      screen: HomeScreen
+    },
+    Order: {
+      screen: OrderScreen
+    },
+    Profile: {
+      screen: ProfileScreen
+    }
+  },
+  {
+    contentComponent: SideMenu,
+    drawerWidth: 300
+  }
+);

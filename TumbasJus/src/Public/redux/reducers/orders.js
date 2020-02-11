@@ -17,6 +17,7 @@ const orders = (state = initialState, action) => {
               product_id: action.payload.id,
               name: action.payload.name,
               price: action.payload.price,
+              image: action.payload.image,
               quantity: 1,
               subtotal: action.payload.price
             }
@@ -28,6 +29,7 @@ const orders = (state = initialState, action) => {
                   product_id: item.product_id,
                   name: item.name,
                   price: item.price,
+                  image: action.payload.image,
                   quantity: item.quantity + 1,
                   subtotal: item.price * (item.quantity + 1)
                 };
@@ -71,6 +73,7 @@ const orders = (state = initialState, action) => {
               product_id: action.payload.id,
               name: action.payload.name,
               price: action.payload.price,
+              image: action.payload.image,
               quantity: 1,
               subtotal: action.payload.price
             }
@@ -82,6 +85,7 @@ const orders = (state = initialState, action) => {
                   product_id: item.product_id,
                   name: item.name,
                   price: item.price,
+                  image: action.payload.image,
                   quantity: item.quantity + 1,
                   subtotal: item.price * (item.quantity + 1)
                 };
@@ -108,6 +112,7 @@ const orders = (state = initialState, action) => {
                 product_id: item.product_id,
                 name: item.name,
                 price: item.price,
+                image: action.payload.image,
                 quantity: item.quantity - 1,
                 subtotal: item.price * (item.quantity - 1)
               };
