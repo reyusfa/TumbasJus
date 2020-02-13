@@ -136,6 +136,8 @@ const orders = (state = initialState, action) => {
         order: [...newOrderOnReduce],
         totalOrder: newTotalOnReduce
       };
+    case 'CLEAR_CART':
+      return initialState;
     default:
       return state;
   }

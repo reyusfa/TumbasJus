@@ -77,10 +77,8 @@ const CardProduct = props => {
     dataItem,
     dataOrder,
     onAddItem,
-    onRemoveItem,
     onAddQuantity,
-    onReduceQuantity,
-    onSelectItem
+    onReduceQuantity
   } = props;
   const order = dataOrder.order.filter(item => {
     return item.product_id === dataItem.id;
@@ -90,9 +88,7 @@ const CardProduct = props => {
     <CardLayout>
       <CardContainer>
         <View>
-          <TouchableOpacity activeOpacity={0.9} onPress={onSelectItem}>
-            <CardImage source={{ uri: dataItem.image }} />
-          </TouchableOpacity>
+          <CardImage source={{ uri: dataItem.image }} />
           <CardItem>
             <Text
               numberOfLines={2}

@@ -13,12 +13,27 @@ const products = (state = initialState, action) => {
       };
     case 'GET_PRODUCTS_FULFILLED':
       return {
-        ...state,
         isLoading: false,
         data: action.payload.data,
         pagination: action.payload.pagination
       };
     case 'GET_PRODUCTS_REJECTED':
+      return {
+        ...state,
+        isLoading: false
+      };
+    case 'GET_MORE_PRODUCTS_PENDING':
+      return {
+        ...state,
+        isLoading: true
+      };
+    case 'GET_MORE_PRODUCTS_FULFILLED':
+      return {
+        isLoading: false,
+        data: [...state.data, ...action.payload.data],
+        pagination: action.payload.pagination
+      };
+    case 'GET_MORE_PRODUCTS_REJECTED':
       return {
         ...state,
         isLoading: false

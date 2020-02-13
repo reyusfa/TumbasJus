@@ -8,7 +8,7 @@ const useInputText = initialValue => {
     setValue,
     reset: () => setValue(initialValue),
     bindText: {
-      defautlValue: value,
+      value: value,
       onChangeText: text => {
         setValue(text);
       }

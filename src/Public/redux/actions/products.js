@@ -3,12 +3,12 @@ import qs from 'qs';
 
 import { API_HOST } from 'react-native-dotenv';
 
-const getProducts = ({ headers, params }) => {
+const actionGetProducts = ({ headers, params }) => {
   const config = {
     headers,
     params,
-    paramsSerializer: params => {
-      return qs.stringify(params);
+    paramsSerializer: _params => {
+      return qs.stringify(_params);
     }
   };
   return {
@@ -19,4 +19,20 @@ const getProducts = ({ headers, params }) => {
   };
 };
 
-export { getProducts };
+const actionGetMoreProducts = ({ headers, params }) => {
+  const config = {
+    headers,
+    params,
+    paramsSerializer: _params => {
+      return qs.stringify(_params);
+    }
+  };
+  return {
+    type: 'GET_MORE_PRODUCTS',
+    payload: axios.get(`${API_HOST}/products`, config).then(({ data }) => {
+      return data;
+    })
+  };
+};
+
+export { actionGetProducts, actionGetMoreProducts };

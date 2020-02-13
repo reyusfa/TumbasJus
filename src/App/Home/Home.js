@@ -1,15 +1,15 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
-import { Text, View, FlatList } from 'react-native';
-import Icon from 'react-native-ionicons';
+import { View, FlatList } from 'react-native';
 
 import CardProduct from '../../Public/components/CardProduct';
 import NavigationHome from '../../Public/components/NavigationHome';
-import ModalDetailItem from '../../Public/components/ModalDetailItem';
 
-import { useInputText } from '../../Public/helper';
-import { getProducts } from '../../Public/redux/actions/products';
+import {
+  actionGetProducts,
+  actionGetMoreProducts
+} from '../../Public/redux/actions/products';
 import {
   actionAddItemToCart,
   actionRemoveItemFromCart,
@@ -21,8 +21,8 @@ const Home = props => {
   const {
     auth,
     products,
-    getDataProducts,
-    requestLogout,
+    getProducts,
+    getMoreProducts,
     navigation,
     addItemToCart,
     removeItemFromCart,
@@ -32,67 +32,85 @@ const Home = props => {
   } = props;
 
   const [limit, setLimit] = useState(4);
+  const [page, setPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
-  const [itemData, setItemData] = useState({});
+  const [dataModal, setDataModal] = useState({});
 
-  const countProducts = products.data.length;
-
+  const totalPages = products.pagination.total_page;
   const filterName = navigation.getParam('filterName');
+  const sortBy = navigation.getParam('sortBy');
+  const filterCategory = navigation.getParam('filterCategory');
 
-  const config = {
+  const headers = {
     headers: {
       authorization: auth.data.token
-    },
-    params: {
-      filter: {
-        name: filterName
-      },
-      limit: limit
     }
   };
 
-  const setDataProducts = async () => {
-    await getDataProducts(config);
+  const setInitProducts = async params => {
+    const config = {
+      ...headers,
+      params: {
+        filter: {
+          ...(filterName ? { name: filterName } : null)
+        },
+        limit: limit
+      }
+    };
+    await getProducts(config);
   };
 
-  const logout = () => {
-    requestLogout();
-    navigation.navigate('Auth');
+  const setFilteredProducts = async params => {
+    setPage(1);
+    const config = {
+      ...headers,
+      params: {
+        filter: {
+          ...(filterName ? { name: filterName } : null),
+          ...(filterCategory ? { category_id: filterCategory } : null)
+        },
+        ...(sortBy ? { sort: sortBy } : null)
+      }
+    };
+    await getProducts(config);
+  };
+
+  const setMoreProducts = async params => {
+    const config = {
+      ...headers,
+      params: {
+        filter: {
+          ...(filterName ? { name: filterName } : null)
+        },
+        limit: limit,
+        page: page
+      }
+    };
+    await getMoreProducts(config);
   };
 
   useEffect(() => {
-    navigation.setParams({
-      logout: () => logout()
-    });
+    setInitProducts();
   }, []);
 
   useEffect(() => {
-    setDataProducts();
-  }, [filterName]);
+    setFilteredProducts();
+  }, [filterName, sortBy, filterCategory]);
 
   useEffect(() => {
-    navigation.setParams({
-      orderCount: orders.cart.length
-    });
-  }, [
-    orders,
-    addItemToCart,
-    removeItemFromCart,
-    addQuantityItem,
-    reduceQuantityItem
-  ]);
-
-  useEffect(() => {
-    setLimit(limit + 4);
-  }, [countProducts]);
+    setMoreProducts();
+  }, [page]);
 
   const _handleLoadMore = () => {
-    setDataProducts();
+    if (page < totalPages) {
+      setPage(page + 1);
+      console.log(page);
+    }
   };
 
   const openModal = data => {
     setModalVisible(true);
-    setItemData(data);
+    setDataModal(data);
   };
 
   return (
@@ -124,13 +142,8 @@ const Home = props => {
           />
         )}
         onEndReached={_handleLoadMore}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.1}
         initialNumToRender={4}
-      />
-      <ModalDetailItem
-        modalVisible={modalVisible}
-        handleClose={() => setModalVisible(false)}
-        data={itemData}
       />
     </View>
   );
@@ -149,11 +162,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  getDataProducts: config => dispatch(getProducts(config)),
-  requestLogout: () =>
-    dispatch({
-      type: 'LOGOUT_REQUEST'
-    }),
+  getProducts: config => dispatch(actionGetProducts(config)),
+  getMoreProducts: config => dispatch(actionGetMoreProducts(config)),
   addItemToCart: data => dispatch(actionAddItemToCart(data)),
   removeItemFromCart: data => dispatch(actionRemoveItemFromCart(data)),
   addQuantityItem: data => dispatch(actionAddQuantityItem(data)),
@@ -164,9 +174,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(Home);
-
-// <Button
-//   style={{ borderWidth: 1, flex: 1 }}
-//   title="Logout"
-//   onPress={screenProps.navigation.getParam('logout')}
-// />

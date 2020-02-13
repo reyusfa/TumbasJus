@@ -26,9 +26,16 @@ const actionReduceQuantityItem = data => {
   };
 };
 
+const actionClearCart = () => {
+  return {
+    type: 'CLEAR_CART'
+  };
+};
+
 export {
   actionAddItemToCart,
   actionRemoveItemFromCart,
   actionAddQuantityItem,
-  actionReduceQuantityItem
+  actionReduceQuantityItem,
+  actionClearCart
 };
